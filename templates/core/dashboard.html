@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - TopCar {% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1 class="h3">Visão Geral</h1>
+        <button hx-get="." hx-select="body" hx-target="body" class="btn btn-sm btn-outline-primary">
+            🔄 Atualizar
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title opacity-75">Total Veículos</h5>
+                <p class="card-text display-5 fw-bold">{{ total_carros }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-success h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title opacity-75">Disponíveis</h5>
+                <p class="card-text display-5 fw-bold">{{ carros_disponiveis }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-white bg-warning h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title opacity-75 text-dark">A Receber</h5>
+                <p class="card-text display-5 fw-bold text-dark">R$ {{ a_receber|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

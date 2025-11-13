@@ -1,0 +1,48 @@
+{% for v in vehicles %}
+<tr>
+    <td>
+        <strong>{{ v.model.brand.name }} {{ v.model.name }}</strong><br>
+        <small class="text-muted">{{ v.plate|default:"S/ Placa" }}</small>
+    </td>
+    <td>{{ v.year_model }}</td>
+    <td>{{ v.color }}</td>
+    <td>
+        {% if v.status == 'AVAILABLE' %}
+            <span class="badge bg-success">Disponível</span>
+        {% elif v.status == 'MAINTENANCE' %}
+            <span class="badge bg-warning text-dark">Oficina</span>
+        {% elif v.status == 'SOLD' %}
+            <span class="badge bg-secondary">Vendido</span>
+        {% elif v.status == 'WRITE_OFF' %}
+            <span class="badge bg-danger">Perda Total</span>
+        {% else %}
+            <span class="badge bg-info">{{ v.get_status_display }}</span>
+        {% endif %}
+    </td>
+    <td>R$ {{ v.sale_price }}</td>
+    <!-- <td>
+        <button class="btn btn-sm btn-outline-primary">Ver Detalhes</button>
+    </td> -->
+    <td>
+            <div class="d-flex gap-2">
+                <a href="{% url 'vehicle_update' v.id %}" class="btn btn-sm btn-outline-primary" title="Editar dados">
+                    ✏️
+                </a>
+
+                <form action="{% url 'vehicle_delete' v.id %}" method="post" class="d-inline"
+                    onsubmit="return confirm('Tem certeza que deseja EXCLUIR o veículo {{ v.model }}? Essa ação é irreversível.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir cadastro">
+                        🗑️
+                    </button>
+                </form>
+            </div>
+        </td>
+    </tr>
+{% empty %}
+<tr>
+    <td colspan="6" class="text-center py-4 text-muted">
+        <em>Nenhum veículo encontrado com estes filtros.</em>
+    </td>
+</tr>
+{% endfor %}

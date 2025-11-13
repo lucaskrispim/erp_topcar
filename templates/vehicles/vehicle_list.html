@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Estoque de Veículos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Estoque de Veículos</h2>
+    <a href="{% url 'vehicle_create' %}" class="btn btn-primary">
+        + Nova Aquisição
+    </a>
+</div>
+
+<div class="card mb-4 p-3 shadow-sm bg-white">
+    <div class="row g-3 align-items-end">
+        
+        <div class="col-md-5">
+            <label class="form-label fw-bold">Buscar</label>
+            <input type="text" 
+                   name="q" 
+                   class="form-control" 
+                   placeholder="Modelo, Placa ou Chassi..."
+                   hx-get="{% url 'vehicle_list' %}"
+                   hx-trigger="keyup changed delay:500ms"
+                   hx-target="#vehicle-tbody"
+                   hx-indicator="#loading">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Situação</label>
+            <select name="status" 
+                    class="form-select"
+                    hx-get="{% url 'vehicle_list' %}"
+                    hx-target="#vehicle-tbody"
+                    hx-indicator="#loading">
+                <option value="">Todos</option>
+                {% for code, label in status_choices %}
+                    <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="col-md-1">
+            <div id="loading" class="htmx-indicator spinner-border text-primary spinner-border-sm" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Veículo / Placa</th>
+                    <th scope="col">Ano</th>
+                    <th scope="col">Cor</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Preço Venda</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="vehicle-tbody">
+                {% include 'vehicles/partials/vehicle_table_rows.html' %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

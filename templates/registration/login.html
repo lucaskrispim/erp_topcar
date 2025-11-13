@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - TopCar {% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow-lg border-0 rounded-lg">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0">🚗 Acesso ao Sistema</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger py-2">
+                            <small>Usuário ou senha incorretos.</small>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Usuário</label>
+                        <input type="text" name="username" class="form-control" autofocus required id="id_username">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Senha</label>
+                        <input type="password" name="password" class="form-control" required id="id_password">
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3">
+                <small class="text-muted">TopCar ERP v1.0</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
