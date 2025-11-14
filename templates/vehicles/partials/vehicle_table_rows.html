@@ -29,7 +29,7 @@
                     ✏️
                 </a>
 
-                <form action="{% url 'vehicle_delete' v.id %}" method="post" class="d-inline"
+                <form action="{% url 'vehicle_delete' v.id %}" method="post" class="d-inline" autocomplete="off"
                     onsubmit="return confirm('Tem certeza que deseja EXCLUIR o veículo {{ v.model }}? Essa ação é irreversível.');">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir cadastro">

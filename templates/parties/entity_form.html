@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Entidade{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3>{{ action }} Entidade</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" autocomplete="off">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.nome_razao_social.label }}</label>
+                        {{ form.nome_razao_social }}
+                        <div class="text-danger">{{ form.nome_razao_social.errors }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-7">
+                            <label class="form-label">{{ form.documento_principal.label }}</label>
+                            {{ form.documento_principal }}
+                            <div class="text-danger">{{ form.documento_principal.errors }}</div>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">{{ form.tipo_entidade.label }}</label>
+                            {{ form.tipo_entidade }}
+                            <div class="text-danger">{{ form.tipo_entidade.errors }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.email.label }}</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.telefone.label }}</label>
+                            {{ form.telefone }}
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'entity_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-5">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

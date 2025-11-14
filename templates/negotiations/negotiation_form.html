@@ -1,56 +1,185 @@
 {% extends 'base.html' %}
 
-{% block title %}Nova Venda{% endblock %}
+{% block title %}Nova Venda com Troca{% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">💰 Registrar Venda</h4>
+    <h2 class="mb-4">🤝 Registrar Negociação</h2>
+
+    <form method="post" autocomplete="off">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body bg-light">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="fw-bold">{{ form.customer.label }}</label>
+                        {{ form.customer }}
+                        <div class="text-danger">{{ form.customer.errors }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fw-bold">{{ form.seller.label }}</label>
+                        {{ form.seller }}
+                        <div class="text-danger">{{ form.seller.errors }}</div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="row mb-3">
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-success h-100 shadow-sm">
+                    <div class="card-header bg-success text-white fw-bold">
+                        📤 Venda (Saída)
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.vehicle.label }}</label>
+                            {{ form.vehicle }}
+                            <small class="text-muted">Apenas carros disponíveis.</small>
+                            <div class="text-danger">{{ form.vehicle.errors }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-success">{{ form.sale_value.label }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                {{ form.sale_value }}
+                            </div>
+                            <div class="text-danger">{{ form.sale_value.errors }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-warning h-100 shadow-sm">
+                    <div class="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center">
+                        <span>📥 Troca (Entrada)</span>
+                        <div class="form-check form-switch">
+                            {{ form.has_trade_in }}
+                            <label class="form-check-label" for="{{ form.has_trade_in.id_for_label }}">Aceitar?</label>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body" id="tradeInBlock" style="display: none;">
+                        <div class="row g-2 mb-2">
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">{{ form.customer.label }}</label>
-                                {{ form.customer }}
+                                <label class="form-label">{{ form.trade_in_brand_name.label }}</label>
+                                {{ form.trade_in_brand_name }}
+                                <div class="text-danger">{{ form.trade_in_brand_name.errors }}</div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">{{ form.seller.label }}</label>
-                                {{ form.seller }}
+                                <label class="form-label">{{ form.trade_in_model_name.label }}</label>
+                                {{ form.trade_in_model_name }}
+                                <div class="text-danger">{{ form.trade_in_model_name.errors }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label">{{ form.trade_in_plate.label }}</label>
+                                {{ form.trade_in_plate }}
+                                <div class="text-danger">{{ form.trade_in_plate.errors }}</div>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">{{ form.trade_in_chassi.label }}</label>
+                                {{ form.trade_in_chassi }}
+                                <div class="text-danger">{{ form.trade_in_chassi.errors }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-2 mb-2">
+                             <div class="col-md-6">
+                                <label class="form-label">{{ form.trade_in_renavam.label }}</label>
+                                {{ form.trade_in_renavam }}
+                                <div class="text-danger">{{ form.trade_in_renavam.errors }}</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{ form.trade_in_year_fab.label }}</label>
+                                {{ form.trade_in_year_fab }}
+                                <div class="text-danger">{{ form.trade_in_year_fab.errors }}</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{ form.trade_in_year_model.label }}</label>
+                                {{ form.trade_in_year_model }}
+                                <div class="text-danger">{{ form.trade_in_year_model.errors }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label">{{ form.trade_in_color.label }}</label>
+                                {{ form.trade_in_color }}
+                                <div class="text-danger">{{ form.trade_in_color.errors }}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">{{ form.trade_in_fuel_type.label }}</label>
+                                {{ form.trade_in_fuel_type }}
+                                <div class="text-danger">{{ form.trade_in_fuel_type.errors }}</div>
+                            </div>
+                             <div class="col-md-4">
+                                <label class="form-label">{{ form.trade_in_mileage.label }}</label>
+                                {{ form.trade_in_mileage }}
+                                <div class="text-danger">{{ form.trade_in_mileage.errors }}</div>
                             </div>
                         </div>
 
                         <hr>
-
                         <div class="mb-3">
-                            <label class="form-label fw-bold">{{ form.vehicle.label }}</label>
-                            {{ form.vehicle }}
-                            <small class="text-muted">Apenas veículos com status 'Disponível' aparecem aqui.</small>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-success">{{ form.sale_value.label }}</label>
-                            <div class="input-group input-group-lg">
+                            <label class="form-label fw-bold text-danger">{{ form.trade_in_value.label }}</label>
+                            <div class="input-group">
                                 <span class="input-group-text">R$</span>
-                                {{ form.sale_value }}
+                                {{ form.trade_in_value }}
                             </div>
+                            <small class="text-muted">Valor que pagaremos no carro do cliente.</small>
+                            <div class="text-danger">{{ form.trade_in_value.errors }}</div>
                         </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                ✅ Confirmar Venda
-                            </button>
-                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
-                        </div>
-                    </form>
+                    </div>
+                    
+                    <div class="card-body text-center text-muted py-5" id="tradeInPlaceholder">
+                        <em>Sem veículo na troca.</em>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="d-grid gap-2 mt-4 mb-5">
+            <button type="submit" class="btn btn-dark btn-lg p-3">
+                ✅ Fechar Negócio
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
 </div>
+
+<script>
+    function toggleTradeIn(checkbox) {
+        const block = document.getElementById('tradeInBlock');
+        const placeholder = document.getElementById('tradeInPlaceholder');
+        
+        if (checkbox.checked) {
+            block.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            block.style.display = 'none';
+            placeholder.style.display = 'block';
+            
+            // Limpa campos para evitar envio acidental e validação desnecessária
+            // (Esta parte pode ser otimizada, mas por enquanto limpa o valor)
+            let valueField = document.getElementById('{{ form.trade_in_value.id_for_label }}');
+            if (valueField) valueField.value = '';
+        }
+    }
+
+    // Executa ao carregar (caso o form volte com erro e o checkbox esteja marcado)
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('{{ form.has_trade_in.id_for_label }}');
+        if (checkbox) {
+            toggleTradeIn(checkbox);
+        }
+    });
+</script>
 {% endblock %}

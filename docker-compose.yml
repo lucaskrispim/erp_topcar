@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    # Comando para iniciar o servidor, garantindo as migrações
+    command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    
+    # CRÍTICO: Monta a pasta local no container, garantindo que o db.sqlite3 seja persistido
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      # Variáveis de ambiente para o Django
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-test-key-for-dev
+    restart: always

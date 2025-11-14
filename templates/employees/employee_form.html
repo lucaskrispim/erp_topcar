@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Colaborador{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3>{{ action }} Colaborador</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" autocomplete="off">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.entidade.label }}</label>
+                        {{ form.entidade }}
+                        <small class="text-muted">Selecione a Pessoa Física (cadastrada no menu de Entidades) que será promovida a Colaborador.</small>
+                        <div class="text-danger">{{ form.entidade.errors }}</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label">{{ form.cargo.label }}</label>
+                            {{ form.cargo }}
+                            <div class="text-danger">{{ form.cargo.errors }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.comissao_base_percentual.label }}</label>
+                            {{ form.comissao_base_percentual }}
+                            <div class="text-danger">{{ form.comissao_base_percentual.errors }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.usuario_sistema.label }}</label>
+                        {{ form.usuario_sistema }}
+                        <small class="text-muted">Se este colaborador vai acessar o sistema, vincule o login dele aqui. (Cadastrado no /admin ou futuro CRUD de usuários).</small>
+                        <div class="text-danger">{{ form.usuario_sistema.errors }}</div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ form.ativo }}
+                        <label class="form-check-label" for="{{ form.ativo.id_for_label }}">{{ form.ativo.label }}</label>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-5">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

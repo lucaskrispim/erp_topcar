@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Categoria{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h3>{{ action }} Categoria do Plano de Contas</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" autocomplete="off">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-9">
+                            <label class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            <div class="text-danger">{{ form.name.errors }}</div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">{{ form.code.label }}</label>
+                            {{ form.code }}
+                            <div class="text-danger">{{ form.code.errors }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.operation_type.label }}</label>
+                            {{ form.operation_type }}
+                            <div class="text-danger">{{ form.operation_type.errors }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.parent.label }}</label>
+                            {{ form.parent }}
+                            <div class="text-danger">{{ form.parent.errors }}</div>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'chart_of_accounts_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-5">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

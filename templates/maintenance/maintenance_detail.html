@@ -45,7 +45,7 @@
         <div class="card border-primary border-opacity-25 shadow-sm">
             <div class="card-body">
                 <h5 class="card-title mb-3">➕ Adicionar Item</h5>
-                <form action="{% url 'maintenance_add_item' os.id %}" method="post" class="row g-2">
+                <form action="{% url 'maintenance_add_item' os.id %}" method="post" class="row g-2" autocomplete="off">
                     {% csrf_token %}
                     <div class="col-md-5">
                         {{ form_item.description }}
@@ -88,7 +88,7 @@
                         <small>Ao concluir, será gerada uma conta a pagar para <strong>{{ os.supplier.nome_razao_social }}</strong>.</small>
                     </div>
                     <div class="d-grid">
-                        <form action="{% url 'maintenance_finish' os.id %}" method="post" onsubmit="return confirm('Confirma o fechamento da OS? O valor será enviado ao financeiro.');">
+                        <form action="{% url 'maintenance_finish' os.id %}" method="post" autocomplete="off" onsubmit="return confirm('Confirma o fechamento da OS? O valor será enviado ao financeiro.');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-lg btn-success w-100">
                                 ✅ Concluir OS

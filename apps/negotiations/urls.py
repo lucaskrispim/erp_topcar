@@ -10,4 +10,6 @@ urlpatterns = [
     
     # Detalhes (ex: sales/5/)
     path('<int:pk>/', views.negotiation_detail, name='negotiation_detail'),
+
+    path('<int:pk>/cancel/', views.negotiation_cancel, name='negotiation_cancel'),
 ]

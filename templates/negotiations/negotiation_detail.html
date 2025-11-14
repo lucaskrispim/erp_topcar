@@ -130,5 +130,20 @@
             </div>
         </div>
     </div>
+</div> <div class="mt-4 text-end d-flex justify-content-end gap-2">
+    
+    {% if sale.status != 'CANCELED' %}
+    <form action="{% url 'negotiation_cancel' sale.id %}" method="post" autocomplete="off"
+          onsubmit="return confirm('ATENÇÃO:\n\nVocê está prestes a ESTORNAR esta venda.\n\nO estoque será revertido e o financeiro cancelado.\n\nDeseja continuar?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            ❌ Cancelar / Estornar Venda
+        </button>
+    </form>
+    {% else %}
+    <span class="badge bg-danger fs-6 p-2">VENDA CANCELADA</span>
+    {% endif %}
+
 </div>
+
 {% endblock %}

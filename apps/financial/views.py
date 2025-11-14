@@ -10,6 +10,14 @@ from django.db.models import Sum
 from datetime import date, timedelta
 from .models import Installment
 
+# ... (imports anteriores: render, redirect, messages, etc.) ...
+from .forms import ManualLedgerForm
+
+# ... (imports anteriores: render, redirect, messages, etc.) ...
+from django.db.models import ProtectedError # Importar para a lógica de exclusão
+from .models import ChartOfAccounts # Importar o modelo
+from .forms import ChartOfAccountsForm # Importar o formulário
+
 @login_required
 def financial_list(request):
     # Lista apenas o que está pendente
@@ -93,3 +101,73 @@ def financial_statement(request):
         'filter_end': end_date,
         'filter_account': int(account_id) if account_id else '',
     })
+
+
+# ... (Mantenha 'financial_list' e 'financial_statement') ...
+
+@login_required
+def ledger_manual_create(request):
+    if request.method == 'POST':
+        form = ManualLedgerForm(request.POST)
+        if form.is_valid():
+            ledger = form.save(commit=False)
+            ledger.created_by = request.user
+            ledger.status = 'OPEN' # Nasce em aberto
+            ledger.save()
+            messages.success(request, "Lançamento manual criado com sucesso.")
+            return redirect('financial_list')
+    else:
+        form = ManualLedgerForm()
+
+    return render(request, 'financial/ledger_manual_form.html', {'form': form})
+
+# ... (Mantenha todas as views anteriores: financial_list, ledger_manual_create, etc.) ...
+
+# --- CRUD DE PLANO DE CONTAS ---
+
+@login_required
+def chart_of_accounts_list(request):
+    # Usa select_related para otimizar o carregamento da Conta Pai
+    accounts = ChartOfAccounts.objects.select_related('parent').all().order_by('code')
+    return render(request, 'financial/chart_of_accounts_list.html', {'accounts': accounts})
+
+@login_required
+def chart_of_accounts_create(request):
+    if request.method == 'POST':
+        form = ChartOfAccountsForm(request.POST)
+        if form.is_valid():
+            account = form.save(commit=False)
+            account.created_by = request.user
+            account.save()
+            messages.success(request, f"Categoria '{account.name}' ({account.code}) criada com sucesso.")
+            return redirect('chart_of_accounts_list')
+    else:
+        form = ChartOfAccountsForm()
+    return render(request, 'financial/chart_of_accounts_form.html', {'form': form, 'action': 'Nova'})
+
+@login_required
+def chart_of_accounts_update(request, pk):
+    account = get_object_or_404(ChartOfAccounts, pk=pk)
+    if request.method == 'POST':
+        form = ChartOfAccountsForm(request.POST, instance=account)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Categoria '{account.name}' ({account.code}) atualizada.")
+            return redirect('chart_of_accounts_list')
+    else:
+        form = ChartOfAccountsForm(instance=account)
+    return render(request, 'financial/chart_of_accounts_form.html', {'form': form, 'action': 'Editar'})
+
+@login_required
+def chart_of_accounts_delete(request, pk):
+    account = get_object_or_404(ChartOfAccounts, pk=pk)
+    if request.method == 'POST':
+        try:
+            account_name = account.name
+            account.delete()
+            messages.success(request, f"Categoria '{account_name}' excluída com sucesso.")
+        except ProtectedError:
+            # Trava de segurança: impede excluir se houver Lançamentos ou Contas Filhas vinculadas
+            messages.error(request, f"Erro: A categoria '{account.name}' não pode ser excluída. Ela está vinculada a Lançamentos ou é Conta Pai de outras categorias.")
+    
+    return redirect('chart_of_accounts_list')

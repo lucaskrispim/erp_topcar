@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db.models import Q
-from .models import Vehicle
 from .forms import VehicleAcquisitionForm
 from .services import register_vehicle_acquisition
 from django.contrib.auth.decorators import login_required
@@ -12,6 +11,13 @@ from django.db.models import Q, ProtectedError # <--- VERIFIQUE ESTE IMPORT
 
 from django.db.models import Sum, F, DecimalField, Value
 from django.db.models.functions import Coalesce
+from .models import Vehicle, Brand, Model
+from .models import Brand # Importe o modelo Brand
+from .forms import BrandForm # Importe o novo formulário
+
+# ... (imports anteriores: Q, ProtectedError, etc.) ...
+from .forms import ModelForm # Importe o novo formulário
+
 
 # --- VIEW 1: Listagem (Passo 7 - HTMX) ---
 @login_required
@@ -143,3 +149,118 @@ def vehicle_roi_report(request):
         'vehicles': sold_vehicles,
         'totals': totals
     })
+
+@login_required
+def load_models(request):
+    """
+    View que o HTMX chama para carregar os modelos de uma marca.
+    """
+    # Pega o ID da marca que o HTMX enviou via GET
+    brand_id = request.GET.get('brand') 
+    
+    # Filtra os modelos daquela marca
+    models = Model.objects.filter(brand_id=brand_id).order_by('name')
+    
+    # Renderiza APENAS o HTML dos <option>
+    return render(request, 'vehicles/partials/model_options.html', {'models': models})
+
+# ... (Mantenha todas as views anteriores: vehicle_list, load_models, etc.) ...
+
+# --- CRUD DE MARCAS ---
+
+@login_required
+def brand_list(request):
+    brands = Brand.objects.all().order_by('name')
+    return render(request, 'vehicles/brand_list.html', {'brands': brands})
+
+@login_required
+def brand_create(request):
+    if request.method == 'POST':
+        form = BrandForm(request.POST)
+        if form.is_valid():
+            brand = form.save(commit=False)
+            brand.created_by = request.user
+            brand.save()
+            messages.success(request, f"Marca '{brand.name}' criada com sucesso.")
+            return redirect('brand_list')
+    else:
+        form = BrandForm()
+    return render(request, 'vehicles/brand_form.html', {'form': form, 'action': 'Nova'})
+
+@login_required
+def brand_update(request, pk):
+    brand = get_object_or_404(Brand, pk=pk)
+    if request.method == 'POST':
+        form = BrandForm(request.POST, instance=brand)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Marca '{brand.name}' atualizada.")
+            return redirect('brand_list')
+    else:
+        form = BrandForm(instance=brand)
+    return render(request, 'vehicles/brand_form.html', {'form': form, 'action': 'Editar'})
+
+@login_required
+def brand_delete(request, pk):
+    brand = get_object_or_404(Brand, pk=pk)
+    if request.method == 'POST':
+        try:
+            brand_name = brand.name
+            brand.delete()
+            messages.success(request, f"Marca '{brand_name}' excluída com sucesso.")
+        except ProtectedError:
+            # TRAVA DE SEGURANÇA: Impede excluir se houver Modelos vinculados
+            messages.error(request, f"Erro: A marca '{brand.name}' não pode ser excluída pois possui modelos de veículos vinculados a ela.")
+    
+    return redirect('brand_list')
+
+# ... (Mantenha todas as views anteriores: brand_list, etc.) ...
+
+# --- CRUD DE MODELOS ---
+
+@login_required
+def model_list(request):
+    # Usamos select_related('brand') para otimizar a query (evitar N+1)
+    models = Model.objects.select_related('brand').all().order_by('brand__name', 'name')
+    return render(request, 'vehicles/model_list.html', {'models': models})
+
+@login_required
+def model_create(request):
+    if request.method == 'POST':
+        form = ModelForm(request.POST)
+        if form.is_valid():
+            model = form.save(commit=False)
+            model.created_by = request.user
+            model.save()
+            messages.success(request, f"Modelo '{model.name}' criado com sucesso.")
+            return redirect('model_list')
+    else:
+        form = ModelForm()
+    return render(request, 'vehicles/model_form.html', {'form': form, 'action': 'Novo'})
+
+@login_required
+def model_update(request, pk):
+    model = get_object_or_404(Model, pk=pk)
+    if request.method == 'POST':
+        form = ModelForm(request.POST, instance=model)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Modelo '{model.name}' atualizado.")
+            return redirect('model_list')
+    else:
+        form = ModelForm(instance=model)
+    return render(request, 'vehicles/model_form.html', {'form': form, 'action': 'Editar'})
+
+@login_required
+def model_delete(request, pk):
+    model = get_object_or_404(Model, pk=pk)
+    if request.method == 'POST':
+        try:
+            model_name = model.name
+            model.delete()
+            messages.success(request, f"Modelo '{model_name}' excluído com sucesso.")
+        except ProtectedError:
+            # TRAVA DE SEGURANÇA: Impede excluir se houver Veículos vinculados
+            messages.error(request, f"Erro: O modelo '{model.name}' não pode ser excluído pois existem veículos cadastrados com ele.")
+    
+    return redirect('model_list')

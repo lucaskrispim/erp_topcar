@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Plano de Contas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📋 Plano de Contas (Categorias)</h2>
+    <a href="{% url 'chart_of_accounts_create' %}" class="btn btn-primary">+ Nova Categoria</a>
+</div>
+
+<div class="alert alert-warning">
+    <strong>Atenção:</strong> A estrutura do Plano de Contas é crítica para os relatórios financeiros. Mantenha os códigos contábeis (Ex: 1.01.01) organizados.
+</div>
+
+<div class="card shadow-sm mt-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Código</th>
+                    <th>Nome da Categoria</th>
+                    <th>Tipo</th>
+                    <th>Conta Pai</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td><span class="fw-bold">{{ account.code }}</span></td>
+                    <td>{{ account.name }}</td>
+                    <td>
+                        <span class="badge bg-{% if account.operation_type == 'RECEIVABLE' %}success{% elif account.operation_type == 'PAYABLE' %}danger{% else %}primary{% endif %}">
+                            {{ account.get_operation_type_display }}
+                        </span>
+                    </td>
+                    <td>{{ account.parent.name|default:"-" }}</td>
+                    <td class="text-end">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'chart_of_accounts_update' account.id %}" class="btn btn-sm btn-outline-primary">
+                                ✏️ Editar
+                            </a>
+                            <form action="{% url 'chart_of_accounts_delete' account.id %}" method="post" class="d-inline" autocomplete="off"
+                                  onsubmit="return confirm('Tem certeza que deseja EXCLUIR a categoria {{ account.name }}? Esta ação é irreversível e pode gerar erros se houver lançamentos vinculados.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    🗑️ Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">Nenhuma categoria cadastrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastro de Marcas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🔩 Marcas de Veículos</h2>
+    <a href="{% url 'brand_create' %}" class="btn btn-primary">+ Nova Marca</a>
+</div>
+
+<div class="alert alert-info d-flex justify-content-between align-items-center">
+    <span>Aqui você gerencia as Marcas (ex: Toyota). O próximo passo é gerenciar os Modelos (ex: Corolla).</span>
+    <a href="{% url 'model_list' %}" class="btn btn-dark">Gerenciar Modelos ➔</a>
+</div>
+
+<div class="card shadow-sm mt-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Nome da Marca</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for brand in brands %}
+                <tr>
+                    <td>{{ brand.name }}</td>
+                    <td class="text-end">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'brand_update' brand.id %}" class="btn btn-sm btn-outline-primary">
+                                ✏️ Editar
+                            </a>
+                            <form action="{% url 'brand_delete' brand.id %}" method="post" class="d-inline" autocomplete="off"
+                                  onsubmit="return confirm('Tem certeza que deseja EXCLUIR a marca {{ brand.name }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    🗑️ Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center py-4 text-muted">Nenhuma marca cadastrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

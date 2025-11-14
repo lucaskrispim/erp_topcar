@@ -5,7 +5,7 @@
         <div class="card shadow">
             <div class="card-header bg-primary text-white">Nova Ordem de Serviço</div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" autocomplete="off">
                     {% csrf_token %}
                     {{ form.as_p }}
                     <div class="d-grid mt-4">

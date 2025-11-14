@@ -25,6 +25,17 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
                         </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Cadastros
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'entity_list' %}">👥 Clientes & Fornecedores</a></li>
+                                <li><a class="dropdown-item" href="{% url 'employee_list' %}">👨‍💼 Colaboradores</a></li>
+                                <li><a class="dropdown-item" href="{% url 'brand_list' %}">🔩 Marcas e Modelos</a></li>
+                            </ul>
+                        </li>
                         
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -62,21 +73,14 @@
                         </li>
 
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle fw-bold text-warning" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Financeiro 💰
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Financeiro 💸
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'financial_list' %}">
-                                        ⚡ Contas a Pagar/Receber
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item" href="{% url 'financial_list' %}">Contas a Pagar/Receber</a></li>
+                                <li><a class="dropdown-item" href="{% url 'financial_statement' %}">Extrato de Contas</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'financial_statement' %}">
-                                        📜 Extrato & Histórico
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item" href="{% url 'chart_of_accounts_list' %}">📋 Plano de Contas</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -95,7 +99,7 @@
                                 <li><a class="dropdown-item" href="/admin/">Administração</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                    <form action="{% url 'logout' %}" method="post" class="d-inline" autocomplete="off">
                                         {% csrf_token %}
                                         <button type="submit" class="dropdown-item text-danger">Sair</button>
                                     </form>
