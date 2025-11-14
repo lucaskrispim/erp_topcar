@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Extrato Financeiro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📜 Extrato de Movimentações</h2>
+    <a href="{% url 'financial_list' %}" class="btn btn-outline-secondary">Voltar para Contas</a>
+</div>
+
+<div class="card p-3 mb-4 shadow-sm bg-white">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Data Início</label>
+            <input type="date" name="start_date" value="{{ filter_start }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Data Fim</label>
+            <input type="date" name="end_date" value="{{ filter_end }}" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Conta Bancária</label>
+            <select name="account_id" class="form-select">
+                <option value="">Todas as Contas</option>
+                {% for acc in accounts %}
+                    <option value="{{ acc.id }}" {% if acc.id == filter_account %}selected{% endif %}>
+                        {{ acc.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+        </div>
+    </form>
+</div>
+
+<div class="row mb-4 text-center">
+    <div class="col-md-4">
+        <div class="card border-success mb-3">
+            <div class="card-header bg-success text-white">Entradas (Período)</div>
+            <div class="card-body">
+                <h4 class="card-title text-success">+ R$ {{ total_in|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-danger mb-3">
+            <div class="card-header bg-danger text-white">Saídas (Período)</div>
+            <div class="card-body">
+                <h4 class="card-title text-danger">- R$ {{ total_out|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-primary mb-3">
+            <div class="card-header bg-primary text-white">Resultado (Líquido)</div>
+            <div class="card-body">
+                <h4 class="card-title {% if balance_period >= 0 %}text-primary{% else %}text-danger{% endif %}">
+                    R$ {{ balance_period|floatformat:2 }}
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Data Pagto</th>
+                    <th>Descrição</th>
+                    <th>Conta</th>
+                    <th>Entidade</th>
+                    <th class="text-end">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in movements %}
+                <tr>
+                    <td>{{ mov.pay_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {{ mov.ledger.description }}
+                        {% if mov.payment_method %}
+                            <br><small class="text-muted badge bg-light text-dark">{{ mov.get_payment_method_display }}</small>
+                        {% endif %}
+                    </td>
+                    <td>{{ mov.financial_account.name }}</td>
+                    <td>{{ mov.ledger.entity.nome_razao_social }}</td>
+                    <td class="text-end fw-bold">
+                        {% if mov.ledger.transaction_type == 'RECEIVABLE' %}
+                            <span class="text-success">+ {{ mov.paid_value }}</span>
+                        {% else %}
+                            <span class="text-danger">- {{ mov.paid_value }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        Nenhuma movimentação encontrada neste período.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -10,6 +10,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import VehicleAcquisitionForm, VehicleEditForm
 from django.db.models import Q, ProtectedError # <--- VERIFIQUE ESTE IMPORT
 
+from django.db.models import Sum, F, DecimalField, Value
+from django.db.models.functions import Coalesce
+
 # --- VIEW 1: Listagem (Passo 7 - HTMX) ---
 @login_required
 def vehicle_list(request):
@@ -114,3 +117,29 @@ def vehicle_delete(request, pk):
             messages.error(request, f"Erro inesperado ao excluir: {str(e)}")
             
     return redirect('vehicle_list')
+
+
+@login_required
+def vehicle_roi_report(request):
+    # 1. Busca apenas veículos vendidos
+    # 2. Annotate: Cria uma coluna virtual 'total_maintenance' somando as OS do carro
+    # 3. Coalesce: Se não tiver manutenção, considera 0.00 em vez de None (para não quebrar a conta)
+    sold_vehicles = Vehicle.objects.filter(status='SOLD').annotate(
+        total_maintenance=Coalesce(Sum('service_orders__total_cost'), Value(0, output_field=DecimalField()))
+    ).annotate(
+        # Agora podemos fazer a conta matemática direto no banco
+        real_profit=F('sale_price') - F('acquisition_cost') - F('total_maintenance')
+    ).order_by('-id')
+
+    # Cálculo dos Totais Gerais para o Cabeçalho do Relatório
+    totals = sold_vehicles.aggregate(
+        sum_revenue=Sum('sale_price'),
+        sum_acquisition=Sum('acquisition_cost'),
+        sum_maintenance=Sum('total_maintenance'),
+        sum_profit=Sum('real_profit')
+    )
+
+    return render(request, 'vehicles/roi_report.html', {
+        'vehicles': sold_vehicles,
+        'totals': totals
+    })

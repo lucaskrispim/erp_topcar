@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Nova Venda{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">💰 Registrar Venda</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.customer.label }}</label>
+                                {{ form.customer }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">{{ form.seller.label }}</label>
+                                {{ form.seller }}
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ form.vehicle.label }}</label>
+                            {{ form.vehicle }}
+                            <small class="text-muted">Apenas veículos com status 'Disponível' aparecem aqui.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-success">{{ form.sale_value.label }}</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">R$</span>
+                                {{ form.sale_value }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                ✅ Confirmar Venda
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

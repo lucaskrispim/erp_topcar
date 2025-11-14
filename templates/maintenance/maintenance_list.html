@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Oficina e Manutenção{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🔧 Ordens de Serviço</h2>
+    <a href="{% url 'maintenance_create' %}" class="btn btn-primary">+ Abrir Nova OS</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th># ID</th>
+                    <th>Data</th>
+                    <th>Veículo</th>
+                    <th>Fornecedor</th>
+                    <th>Custo Total</th>
+                    <th>Status</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for os in orders %}
+                <tr>
+                    <td>#{{ os.id }}</td>
+                    <td>{{ os.issue_date|date:"d/m/Y" }}</td>
+                    <td>{{ os.vehicle.model }} <small class="text-muted">({{ os.vehicle.plate }})</small></td>
+                    <td>{{ os.supplier.nome_razao_social }}</td>
+                    <td class="fw-bold">R$ {{ os.total_cost }}</td>
+                    <td>
+                        {% if os.status == 'COMPLETED' %}
+                            <span class="badge bg-success">Concluída</span>
+                        {% elif os.status == 'APPROVED' %}
+                            <span class="badge bg-warning text-dark">Em Aberto</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ os.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'maintenance_detail' os.id %}" class="btn btn-sm btn-outline-primary">Gerenciar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center py-5">Nenhuma manutenção registrada.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

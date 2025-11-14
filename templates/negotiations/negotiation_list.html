@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico de Vendas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🤝 Histórico de Vendas</h2>
+    <a href="{% url 'negotiation_create' %}" class="btn btn-success">+ Nova Venda</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th># ID</th>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Veículo(s)</th>
+                    <th>Valor Final</th>
+                    <th>Status</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                    <tr data-url="{% url 'negotiation_detail' sale.id %}" onclick="window.location.href=this.dataset.url;" style="cursor: pointer;">                    <td>{{ sale.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ sale.customer.nome_razao_social }}</td>
+                    <td>{{ sale.seller.entidade.nome_razao_social }}</td>
+                    <td>
+                        {% for item in sale.items.all %}
+                            {% if item.flow == 'OUT' %}
+                                <span class="badge bg-light text-dark border">{{ item.vehicle.model }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class="fw-bold">R$ {{ sale.total_value }}</td>
+                    <td>
+                        {% if sale.status == 'APPROVED' %}
+                            <span class="badge bg-success">Concluída</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ sale.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'negotiation_detail' sale.id %}" class="btn btn-sm btn-outline-primary">
+                            🔍 Ver
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">Nenhuma venda realizada ainda.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

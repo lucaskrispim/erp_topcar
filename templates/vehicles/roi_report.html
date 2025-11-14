@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatório de Lucratividade (ROI){% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📈 Lucratividade Real por Veículo</h2>
+    <button onclick="window.print()" class="btn btn-outline-secondary">🖨️ Imprimir</button>
+</div>
+
+<div class="row mb-4 text-center">
+    <div class="col-md-3">
+        <div class="card bg-light border-0 shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Faturamento Total</small>
+                <h4 class="text-dark fw-bold">R$ {{ totals.sum_revenue|default:"0"|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light border-0 shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Custo Aquisição</small>
+                <h4 class="text-danger">R$ {{ totals.sum_acquisition|default:"0"|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light border-0 shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Custo Oficina</small>
+                <h4 class="text-danger">R$ {{ totals.sum_maintenance|default:"0"|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-light border-0 shadow-sm">
+            <div class="card-body">
+                <small class="text-muted">Lucro Líquido</small>
+                <h4 class="{% if totals.sum_profit >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                    R$ {{ totals.sum_profit|default:"0"|floatformat:2 }}
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 text-end">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th class="text-start">Veículo</th>
+                    <th>Preço Venda (+)</th>
+                    <th>Custo Compra (-)</th>
+                    <th>Custo Oficina (-)</th>
+                    <th>Lucro Real (=)</th>
+                    <th>Margem (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in vehicles %}
+                <tr class="text-center">
+                    <td class="text-start">
+                        <strong>{{ v.model }}</strong><br>
+                        <small class="text-muted">{{ v.plate }}</small>
+                    </td>
+                    <td class="text-primary fw-bold">R$ {{ v.sale_price|floatformat:2 }}</td>
+                    <td class="text-danger">R$ {{ v.acquisition_cost|floatformat:2 }}</td>
+                    <td class="text-danger">R$ {{ v.total_maintenance|floatformat:2 }}</td>
+                    
+                    <td class="fw-bold {% if v.real_profit >= 0 %}text-success{% else %}text-danger{% endif %} fs-5">
+                        R$ {{ v.real_profit|floatformat:2 }}
+                    </td>
+
+                    <td>
+                        {% if v.sale_price > 0 %}
+                            <span class="badge {% if v.real_profit > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                {% widthratio v.real_profit v.sale_price 100 %}%
+                            </span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        Nenhum veículo vendido encontrado para cálculo de ROI.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

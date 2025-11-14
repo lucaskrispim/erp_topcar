@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Controle Financeiro{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">💸 Contas em Aberto</h2>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Vencimento</th>
+                    <th>Descrição</th>
+                    <th>Entidade (Quem?)</th>
+                    <th>Tipo</th>
+                    <th>Valor Total</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in ledgers %}
+                <tr>
+                    <td>{{ item.due_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {{ item.description }}<br>
+                        <small class="text-muted">{{ item.chart_of_accounts.name }}</small>
+                    </td>
+                    <td>{{ item.entity.nome_razao_social }}</td>
+                    <td>
+                        {% if item.transaction_type == 'RECEIVABLE' %}
+                            <span class="badge bg-success">A Receber</span>
+                        {% else %}
+                            <span class="badge bg-danger">A Pagar</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-bold">R$ {{ item.total_value }}</td>
+                    <td>
+                        <button type="button" 
+                            class="btn btn-sm btn-primary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modalBaixa"
+                            data-id="{{ item.id }}"
+                            data-desc="{{ item.description }}"
+                            data-val="{{ item.total_value|stringformat:'f' }}"
+                            onclick="prepararBaixa(this)">
+                        💰 Quitar
+                    </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">Nenhuma pendência financeira. Estamos em dia!</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalBaixa" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="ledger_id" id="inputLedgerId">
+                
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Confirmar Pagamento/Recebimento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <p class="lead" id="labelDescricao">...</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Valor a Baixar (R$)</label>
+                        <input type="number" step="0.01" name="amount" id="inputValor" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Conta Bancária (Destino/Origem)</label>
+                        <select name="account_id" class="form-select" required>
+                            <option value="" disabled selected>Selecione uma conta...</option>
+                            {% for acc in accounts %}
+                                <option value="{{ acc.id }}">{{ acc.name }} (Saldo: R$ {{ acc.balance }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Confirmar Baixa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function prepararBaixa(botao) {
+        // 1. Pega os dados dos atributos data-... do botão
+        let id = botao.getAttribute('data-id');
+        let descricao = botao.getAttribute('data-desc');
+        let valor = botao.getAttribute('data-val');
+
+        // 2. Preenche o ID oculto
+        document.getElementById('inputLedgerId').value = id;
+        
+        // 3. Preenche o Texto
+        document.getElementById('labelDescricao').innerText = descricao;
+        
+        // 4. Preenche o Valor (Garante ponto para o input number)
+        // O stringformat:'f' do Django já manda com ponto, mas garantimos aqui
+        if (valor) {
+            let valorLimpo = valor.replace(',', '.');
+            document.getElementById('inputValor').value = parseFloat(valorLimpo).toFixed(2);
+        }
+    }
+</script>
+{% endblock %}

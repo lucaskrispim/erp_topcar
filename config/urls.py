@@ -35,4 +35,11 @@ urlpatterns = [
     # 4. Rota do App de Veículos
     # Quando acessar http://localhost:8000/vehicles/..., manda para o arquivo vehicles/urls.py
     path('vehicles/', include('vehicles.urls')),
+
+    # Adicione esta linha:
+    path('sales/', include('negotiations.urls')),
+
+    path('financial/', include('financial.urls')),
+
+    path('maintenance/', include('maintenance.urls')),
 ]

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes da Venda #{{ sale.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Venda #{{ sale.id }}</h2>
+        <p class="text-muted mb-0">
+            Realizada em {{ sale.created_at|date:"d/m/Y H:i" }} 
+            por <strong>{{ sale.seller.entidade.nome_razao_social }}</strong>
+        </p>
+    </div>
+    <a href="{% url 'negotiation_list' %}" class="btn btn-outline-secondary">Voltar para Lista</a>
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-primary text-white fw-bold">
+                👤 Cliente
+            </div>
+            <div class="card-body">
+                <h4 class="card-title">{{ sale.customer.nome_razao_social }}</h4>
+                <hr>
+                <p class="mb-2">
+                    <strong>Documento:</strong><br>
+                    {{ sale.customer.documento_principal }}
+                </p>
+                <p class="mb-2">
+                    <strong>Contato:</strong><br>
+                    {{ sale.customer.telefone|default:"Não informado" }}
+                </p>
+                <p class="mb-0">
+                    <strong>Email:</strong><br>
+                    {{ sale.customer.email|default:"Não informado" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-dark text-white fw-bold">
+                🚗 Veículos da Transação
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Veículo</th>
+                            <th>Placa</th>
+                            <th class="text-end">Valor Acordado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in sale.items.all %}
+                        <tr>
+                            <td>
+                                {% if item.flow == 'OUT' %}
+                                    <span class="badge bg-success">VENDA (Saída)</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">TROCA (Entrada)</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ item.vehicle.model }}</strong>
+                            </td>
+                            <td>{{ item.vehicle.plate }}</td>
+                            <td class="text-end fw-bold">R$ {{ item.agreed_value }}</td>
+                        </tr>
+                        {% endfor %}
+                        
+                        <tr class="table-light border-top border-2">
+                            <td colspan="3" class="text-end fw-bold text-uppercase">Saldo Final da Negociação:</td>
+                            <td class="text-end fw-bold fs-5 text-primary">
+                                R$ {{ sale.total_value }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card shadow-sm border-warning">
+            <div class="card-header bg-warning bg-opacity-25 fw-bold text-dark">
+                💰 Financeiro Gerado (Lançamentos)
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Vencimento</th>
+                            <th>Descrição</th>
+                            <th>Status Atual</th>
+                            <th class="text-end">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fin in financials %}
+                        <tr>
+                            <td>{{ fin.due_date|date:"d/m/Y" }}</td>
+                            <td>{{ fin.description }}</td>
+                            <td>
+                                {% if fin.status == 'PAID' %}
+                                    <span class="badge bg-success">PAGO</span>
+                                {% elif fin.status == 'PARTIAL' %}
+                                    <span class="badge bg-info">PARCIAL</span>
+                                {% elif fin.status == 'CANCELED' %}
+                                    <span class="badge bg-secondary">CANCELADO</span>
+                                {% else %}
+                                    <span class="badge bg-danger">PENDENTE</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end fw-bold">R$ {{ fin.total_value }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                <em>Nenhum lançamento financeiro encontrado. (Foi uma troca chave-na-chave?)</em>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

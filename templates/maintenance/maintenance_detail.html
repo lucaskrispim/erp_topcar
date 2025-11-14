@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}OS #{{ os.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">OS #{{ os.id }} - {{ os.vehicle.model }}</h2>
+        <span class="text-muted">{{ os.supplier.nome_razao_social }} | {{ os.issue_date|date:"d/m/Y" }}</span>
+    </div>
+    <a href="{% url 'maintenance_list' %}" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light fw-bold">Lista de Serviços e Peças</div>
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th class="text-end">Custo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.description }}</td>
+                        <td><span class="badge bg-secondary">{{ item.get_category_display }}</span></td>
+                        <td class="text-end">R$ {{ item.cost }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="text-center py-4">Nenhum item adicionado ainda.</td></tr>
+                    {% endfor %}
+                    <tr class="table-light fw-bold">
+                        <td colspan="2" class="text-end">TOTAL ATUAL:</td>
+                        <td class="text-end fs-5">R$ {{ total_atual|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {% if os.status != 'COMPLETED' %}
+        <div class="card border-primary border-opacity-25 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">➕ Adicionar Item</h5>
+                <form action="{% url 'maintenance_add_item' os.id %}" method="post" class="row g-2">
+                    {% csrf_token %}
+                    <div class="col-md-5">
+                        {{ form_item.description }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_item.category }}
+                    </div>
+                    <div class="col-md-3">
+                        {{ form_item.cost }}
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-success w-100">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Status da OS</h5>
+                <hr>
+                <div class="mb-3">
+                    <strong>Situação:</strong> 
+                    {% if os.status == 'COMPLETED' %}
+                        <span class="badge bg-success ms-2">CONCLUÍDA</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark ms-2">EM ABERTO</span>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <strong>Observações:</strong><br>
+                    {{ os.notes|default:"-" }}
+                </div>
+
+                {% if os.status != 'COMPLETED' %}
+                    <div class="alert alert-info">
+                        <small>Ao concluir, será gerada uma conta a pagar para <strong>{{ os.supplier.nome_razao_social }}</strong>.</small>
+                    </div>
+                    <div class="d-grid">
+                        <form action="{% url 'maintenance_finish' os.id %}" method="post" onsubmit="return confirm('Confirma o fechamento da OS? O valor será enviado ao financeiro.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-lg btn-success w-100">
+                                ✅ Concluir OS
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success text-center">
+                        <small>Fechada em {{ os.completion_date|date:"d/m/Y" }}</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

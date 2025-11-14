@@ -21,13 +21,67 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link text-muted" href="#">Negociações</a></li>
-                    <li class="nav-item"><a class="nav-link text-muted" href="#">Financeiro</a></li>
-                </ul>
-                <ul class="navbar-nav me-auto">
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'vehicle_list' %}">Veículos</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Veículos 🚗
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'vehicle_list' %}">📋 Estoque Atual</a></li>
+                                <li><a class="dropdown-item" href="{% url 'vehicle_create' %}">➕ Nova Aquisição</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item fw-bold" href="{% url 'vehicle_roi_report' %}">
+                                        📈 Relatório de Lucro (ROI)
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Vendas 🤝
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'negotiation_create' %}">
+                                        ➕ Nova Venda
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'negotiation_list' %}">
+                                        📋 Histórico de Vendas
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle fw-bold text-warning" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Financeiro 💰
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'financial_list' %}">
+                                        ⚡ Contas a Pagar/Receber
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'financial_statement' %}">
+                                        📜 Extrato & Histórico
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'maintenance_list' %}">Oficina 🔧</a>
+                        </li>
                     {% endif %}
                 </ul>
 
@@ -61,7 +115,14 @@
     <div class="container mt-4">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+                    
+                    {% if message.tags == 'error' %}
+                        <strong>⚠️ Atenção:</strong>
+                    {% elif message.tags == 'success' %}
+                        <strong>✅ Sucesso:</strong>
+                    {% endif %}
+
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
