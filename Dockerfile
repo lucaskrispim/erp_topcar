@@ -20,4 +20,4 @@ COPY . $APP_HOME
 EXPOSE 8000
 
 # Comando padrão para rodar a aplicação
-CMD ["/bin/bash", "-c", "python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"]
+CMD ["/bin/bash", "-c", "python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
